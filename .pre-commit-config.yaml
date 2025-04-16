@@ -20,7 +20,7 @@ repos:
       - id: black
         name: black
         description: 'Alters code for style consistency across Python projects'
-        entry: poetry run black --line-length 80
+        entry: poetry run black --line-length 79
         minimum_pre_commit_version: 2.9.2
         language: system
         require_serial: true

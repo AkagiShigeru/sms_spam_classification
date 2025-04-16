@@ -6,6 +6,7 @@ from sklearn.base import ClassifierMixin
 from sklearn.compose import ColumnTransformer
 from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.inspection import permutation_importance
+from sklearn.metrics import auc, precision_recall_curve
 from sklearn.pipeline import Pipeline
 from sklearn.preprocessing import StandardScaler
 
@@ -41,7 +42,9 @@ def create_pipeline(
         ]
     )
 
-    pipeline = Pipeline([("preprocessor", preprocessor), ("classifier", model)])
+    pipeline = Pipeline(
+        [("preprocessor", preprocessor), ("classifier", model)]
+    )
 
     return pipeline
 
@@ -71,6 +74,49 @@ def plot_confusion_matrix(
     plt.title("Confusion Matrix")
     plt.xlabel("Prediction")
     plt.ylabel("True label")
+
+    plt.tight_layout()
+
+    plt.show()
+
+
+def plot_precision_recall(
+    pipeline: Pipeline,
+    X_test: pd.DataFrame,
+    y_test: pd.Series,
+    figsize: tuple = (10, 6),
+):
+    """
+    Plot precision-recall curve for the model
+
+    Args:
+        pipeline: Fitted pipeline
+        X_test: Test features
+        y_test: Test labels
+    """
+    y_pred_proba = pipeline.predict_proba(X_test)[:, 1]
+
+    precision, recall, thresholds = precision_recall_curve(
+        y_test, y_pred_proba
+    )
+
+    # Calculate AUC
+    auc_pr = auc(recall, precision)
+
+    plt.figure(figsize=figsize)
+    plt.plot(
+        recall,
+        precision,
+        color="darkblue",
+        lw=2,
+        label=f"Precision-recall curve (AUC = {auc_pr:.2f})",
+    )
+
+    plt.xlabel("Recall")
+    plt.ylabel("Precision")
+
+    plt.legend()
+    plt.grid(True, alpha=0.3)
 
     plt.tight_layout()
 
